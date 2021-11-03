@@ -1,7 +1,10 @@
-import { ApolloServer, gql } from "apollo-server";
-// A schema is a collection of type definitions (hence "typeDefs")
-// that together define the "shape" of queries that are executed against
-// your data.
+import { ApolloServer, ExpressContext, gql } from 'apollo-server-express';
+import { GraphQLResolverMap } from 'apollo-graphql';
+import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageDisabled, ApolloServerPluginLandingPageGraphQLPlayground, Config } from 'apollo-server-core';
+import express from 'express';
+import http from 'http';
+import { DocumentNode, GraphQLFieldResolver, GraphQLTypeResolver } from 'graphql';
+
 const typeDefs = gql`
   # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
 
@@ -30,19 +33,27 @@ const books = [
   },
 ];
 
-// Resolvers define the technique for fetching the types defined in the
-// schema. This resolver retrieves books from the "books" array above.
-const resolvers = {
+const resolvers: GraphQLResolverMap = {
   Query: {
     books: () => books,
   },
 };
 
-// The ApolloServer constructor requires two parameters: your schema
-// definition and your set of resolvers.
-const server = new ApolloServer({ typeDefs, resolvers });
 
-// The `listen` method launches a web server.
-server.listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
-});
+async function startApolloServer(typeDefs: DocumentNode, resolvers: GraphQLResolverMap) {
+  const app = express();
+  const httpServer = http.createServer(app);
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer }),],
+  });
+  await server.start();
+  server.applyMiddleware({ app });
+  await new Promise<void>(resolve => httpServer.listen({ port: 4000 }, resolve));
+  //await httpServer.listen({ port: 4000 });
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+}
+
+
+startApolloServer(typeDefs, resolvers)
