@@ -1,51 +1,61 @@
-import { ApolloServer, ExpressContext, gql } from 'apollo-server-express';
-import { GraphQLResolverMap } from 'apollo-graphql';
-import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageDisabled, ApolloServerPluginLandingPageGraphQLPlayground, Config } from 'apollo-server-core';
+import { ApolloServer } from 'apollo-server-express';
+//import { GraphQLResolverMap } from 'apollo-graphql';
+import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import express from 'express';
 import http from 'http';
-import { DocumentNode, GraphQLFieldResolver, GraphQLTypeResolver } from 'graphql';
+import joinMonster from 'join-monster';
+import { GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
+import postgres from 'postgres';
 
-const typeDefs = gql`
-  # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
+const db = postgres('postgres://heuuu:heuuu@localhost:5432/heuuu')
+db`SELECT * FROM books.books`.then((heuu) => { console.log(heuu) });
 
-  # This "Book" type defines the queryable fields for every book in our data source.
-  type Book {
-    title: String
-    author: String
-  }
-
-  # The "Query" type is special: it lists all of the available queries that
-  # clients can execute, along with the return type for each. In this
-  # case, the "books" query returns an array of zero or more Books (defined above).
-  type Query {
-    books: [Book]
-  }
-`;
-
-const books = [
-  {
-    title: 'The Awakening',
-    author: 'Kate Chopin',
+//!    ok ???
+const Book = new GraphQLObjectType({
+  name: 'Book',
+  extensions: {
+    joinMonster: {
+      sqlTable: 'books.books',
+      uniqueKey: 'id',
+    }
   },
-  {
-    title: 'City of Glass',
-    author: 'Paul Auster',
-  },
-];
+  fields: () => ({
+    id: {
+      type: GraphQLInt
+    },
+    title: {
+      type: GraphQLString
+    }
+  })
+})
 
-const resolvers: GraphQLResolverMap = {
-  Query: {
-    books: () => books,
-  },
-};
+//!    ok ???
+const QueryRoot = new GraphQLObjectType({
+  name: 'Query',
+  fields: () => ({
+    books: {
+      type: new GraphQLList(Book),
+      resolve: (parent, args, context, resolveInfo) => {
+        return joinMonster.default(resolveInfo, {}, (sql: string) => { // yes forced to use default to work
+          return db(sql);
+        })
+      },
+    }
+  })
+})
 
+//!    ok ???
+var schema = new GraphQLSchema({
+  query: QueryRoot,
+  description: 'huhuhu'
+})
 
-async function startApolloServer(typeDefs: DocumentNode, resolvers: GraphQLResolverMap) {
+// all ok here
+async function startApolloServer(schema: GraphQLSchema) {
   const app = express();
   const httpServer = http.createServer(app);
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema: schema,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer }),],
   });
   await server.start();
@@ -55,5 +65,5 @@ async function startApolloServer(typeDefs: DocumentNode, resolvers: GraphQLResol
   console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
 }
 
-
-startApolloServer(typeDefs, resolvers)
+console.dir(schema)
+startApolloServer(schema)
