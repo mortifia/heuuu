@@ -1,0 +1,8 @@
+web frameworks https://www.fastify.io/
+graphql        https://mercurius.dev/#/
+orm            https://www.prisma.io/graphql
+client sql     https://www.npmjs.com/package/postgres
+database       https://www.postgresql.org/docs/
+
+
+debug         chrome://inspect
