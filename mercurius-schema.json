@@ -1,0 +1,4 @@
+[
+  "extend type Query {\n  books: [Book!]\n}\n\ntype Book {\n  id: Int!\n  title: String!\n  author: String!\n}",
+  "type Query {\n  _: Boolean\n  _L: Boolean\n}\n\ntype Mutationn {\n  _: Boolean\n}\n\ntype Subcription {\n  _: Boolean\n}"
+]

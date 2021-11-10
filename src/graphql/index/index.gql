@@ -1,0 +1,12 @@
+type Query {
+  _: Boolean
+  _L: Boolean
+}
+
+type Mutationn {
+  _: Boolean
+}
+
+type Subcription {
+  _: Boolean
+}
