@@ -1,9 +1,5 @@
 "use strict";
-
 import { IResolvers } from "mercurius";
-
-import pkg from "@prisma/client";
-const { PrismaClient } = pkg;
 
 export const resolvers: IResolvers = {
   Query: {

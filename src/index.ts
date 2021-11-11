@@ -20,9 +20,6 @@ const merge = lodash.merge;
 
 import opentelemetry from "@autotelic/fastify-opentelemetry"; //tracing
 
-import pkg from "@prisma/client";
-const { PrismaClient } = pkg;
-
 const server: FastifyInstance = Fastify({});
 
 const resolvers = await (async () => {
@@ -52,8 +49,6 @@ const { schema } = loadSchemaFiles("src/graphql/**/*.gql", {
   },
 });
 
-const prisma = new PrismaClient();
-
 /* options for graphql service */
 const mercuriusOpt: FastifyRegisterOptions<MercuriusOptions> = {
   schema: schema,
@@ -61,9 +56,6 @@ const mercuriusOpt: FastifyRegisterOptions<MercuriusOptions> = {
   graphiql: true,
   jit: 3,
   path: "/",
-  context: (request, reply) => {
-    return { prisma };
-  },
 };
 
 const start = async () => {

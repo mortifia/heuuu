@@ -1,6 +1,5 @@
 type Query {
   _: Boolean
-  _L: Boolean
 }
 
 type Mutationn {
