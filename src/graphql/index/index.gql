@@ -2,7 +2,7 @@ type Query {
   _: Boolean
 }
 
-type Mutationn {
+type Mutation {
   _: Boolean
 }
 

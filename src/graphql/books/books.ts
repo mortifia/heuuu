@@ -1,25 +1,6 @@
 'use strict'
-import { GraphQLResolveInfo } from 'graphql'
-import { IResolvers } from 'mercurius'
-import postgres from 'postgres'
-
-// generate sql with sheme for build sql and info of actual resolver to match exatly to the request
-function gqlToSql(schemeSql: typeof book, infoGql: GraphQLResolveInfo) {
-  const field = infoGql.fieldNodes[0].selectionSet?.selections.map(info => {
-    return info.name.value
-  })
-  // add the sql type (select | remove | ect ect)
-  let sql = `${schemeSql._type}`
-  // add field requested to sql
-  field?.forEach((fieldRequired: String | Object, pos) => {
-    if (typeof fieldRequired === 'string') {
-      sql += `${pos === 0 ? '' : ','} ${schemeSql[fieldRequired]}`
-    }
-  })
-  // add table to sql
-  sql += ` FROM ${schemeSql._}`
-  return sql
-}
+import { IResolvers } from 'mercurius' // to avoid interference
+import { fields, gqlToSql } from '../../tools/index.js'
 
 const book = {
   _: 'book.book',
@@ -29,13 +10,24 @@ const book = {
   author: 'author',
 }
 
+const bookAdd = {
+  _: 'book.book',
+  _type: 'INSERT',
+  id: [true, 'book_id'],
+  title: true,
+  author: true,
+}
+
 export const resolvers: IResolvers = {
   Query: {
-    // books: () => [{ id: 1, title: "loool", author: "roibert" }],
     books: async (parent, args, ctx, info) => {
-      console.log(gqlToSql(book, info))
-      const tmp = await ctx.sql.unsafe(gqlToSql(book, info))
+      const _fields = fields(info)
+      console.log(gqlToSql(book, _fields))
+      const tmp = await ctx.sql.unsafe(gqlToSql(book, _fields))
       return tmp
     },
+  },
+  Mutation: {
+    bookAdd: async (parent, args, ctx, info) => {},
   },
 }

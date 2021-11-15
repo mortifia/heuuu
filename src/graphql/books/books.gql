@@ -7,3 +7,13 @@ type Book {
   title: String!
   author: String!
 }
+
+input BookAdd {
+  id: Int!
+  title: String!
+  author: String!
+}
+
+extend type Mutation {
+  bookAdd(input: [BookAdd!]!): [Book!]
+}
