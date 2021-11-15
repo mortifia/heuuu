@@ -5,13 +5,12 @@ extend type Query {
 type Book {
   id: Int!
   title: String!
-  author: String!
+  author: String
 }
 
 input BookAdd {
-  id: Int!
   title: String!
-  author: String!
+  author: String
 }
 
 extend type Mutation {

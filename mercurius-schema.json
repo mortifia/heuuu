@@ -1,4 +1,4 @@
 [
-  "extend type Query {\n  books: [Book!]\n}\n\ntype Book {\n  id: Int!\n  title: String!\n  author: String!\n}\n\ninput BookAdd {\n  id: Int!\n  title: String!\n  author: String!\n}\n\nextend type Mutation {\n  bookAdd(input: [BookAdd!]!): [Book!]\n}",
+  "extend type Query {\n  books: [Book!]\n}\n\ntype Book {\n  id: Int!\n  title: String!\n  author: String\n}\n\ninput BookAdd {\n  title: String!\n  author: String\n}\n\nextend type Mutation {\n  bookAdd(input: [BookAdd!]!): [Book!]\n}",
   "type Query {\n  _: Boolean\n}\n\ntype Mutation {\n  _: Boolean\n}\n\ntype Subcription {\n  _: Boolean\n}"
 ]

@@ -19,9 +19,57 @@ export function gqlToSql(
     ('B6717', 'Tampopo', 110, '1985-02-10', 'Comedy'),
     ('HG120', 'The Dinner Game', 140, DEFAULT, 'Comedy');
  */
-function gqlToSqlInsert(schemeSql: { _type: string }, args: any[] | {}) {
-  let sql = `INSERT INTO` // add the sql type (select | remove | insert | ect ect)
-  return ''
+function gqlToSqlInsert(
+  schemeSql: { _type: string; _: string },
+  args: any[] | {}
+) {
+  // add inser into & table & colums
+  let sql = `INSERT INTO ${schemeSql._} (${Object.keys(schemeSql)
+    .filter(key => key[0] !== '_')
+    .join(', ')}) VALUES \n  ${gqlToSqlInsertData(schemeSql, args)}` // add the sql type (select | remove | insert | ect ect)
+  // sert a dire ce que l'on veut du retour
+  if (
+    // @ts-ignore
+    schemeSql._returning !== undefined && // @ts-ignore
+    Array.isArray(schemeSql._returningField)
+  ) {
+    sql += `\nreturning` // @ts-ignore
+    schemeSql._returningField.forEach((fieldRequired: String | Object, pos) => {
+      if (typeof fieldRequired === 'string') {
+        // @ts-ignore
+        sql += `${pos === 0 ? '' : ','} ${schemeSql._returning[fieldRequired]}`
+      }
+    })
+  }
+  return sql
+}
+
+function gqlToSqlInsertData(
+  schemeSql: { _type: string; _: string },
+  args: any[] | {}
+) {
+  if (Array.isArray(args)) {
+    let tmp: string[] = []
+    args!.forEach((row: {}, pos) => {
+      tmp.push(gqlToSqlInsertData(schemeSql, row))
+    })
+    return tmp.join(',\n  ')
+  } else {
+    // finish with only undefine security
+    let sql = '('
+    Object.keys(schemeSql)
+      .filter(key => key[0] !== '_')
+      .forEach((collumn, pos) => {
+        // @ts-ignore
+        const value = args[collumn]
+        value === undefined
+          ? (sql += `${pos === 0 ? '' : ', '}NULL`)
+          : (sql += `${pos === 0 ? '' : ', '}${
+              isNaN(value) ? `'${value}'` : value
+            }`)
+      })
+    return (sql += ')')
+  }
 }
 
 function gqlToSqlSelect(
