@@ -23,17 +23,13 @@ const bookAdd = {
 export const resolvers: IResolvers = {
   Query: {
     books: async (parent, args, ctx, info) => {
-      const _fields = fields(info)
-      console.log(_fields)
-      console.log(gqlToSql(book, _fields))
-      const tmp = await ctx.sql.unsafe(gqlToSql(book, _fields))
-      return tmp
+      return await ctx.sql.unsafe(gqlToSql(book, fields(info)))
     },
   },
   Mutation: {
     bookAdd: async (parent, args, ctx, info) => {
-      // @ts-ignore
       let tmp = Object.assign({}, bookAdd)
+      // @ts-ignore
       tmp._returningField = fields(info)
       return await ctx.sql.unsafe(gqlToSql(tmp, args.input))
     },
