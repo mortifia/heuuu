@@ -1,0 +1,9 @@
+{
+    "ignore": [""],
+    "watch": ["src"],
+    "exec": "npm run build-start",
+    "ext": "ts,gql",
+    "env": {
+        "NODE_ENV": "development"
+    }
+}

@@ -45,7 +45,7 @@ const resolvers = await (async () => {
 /*
   merge schemas and build typescript definition
   with watcher for dev only */
-const { schema } = loadSchemaFiles('src/graphql/**/*.gql', {
+const { schema } = loadSchemaFiles('build/graphql/**/*.gql', {
   watchOptions: {
     enabled: process.env.NODE_ENV === 'development',
     onChange(schema) {

@@ -1,18 +1,49 @@
 extend type Query {
-  books: [Book!]
+  """
+  get all books info
+  """
+  books(
+    input: [BookInput!]
+    order: [BookOrder!]
+    pagination: PaginationInput
+  ): [Book!]
+}
+
+interface pageInfo {
+  page: Int!
+  allPage: Int!
+  scale: Int!
 }
 
 type Book {
-  id: Int!
+  _pageInfo: pageInfo!
+  bookId: Int!
   title: String!
   author: String
+}
+
+input BookInput {
+  bookId: WhereInt
+  title: WhereString
+  author: WhereString
+}
+
+input BookOrder {
+  type: BookType!
+  order: Order!
+}
+
+enum BookType {
+  bookId
+  title
+  author
+}
+
+extend type Mutation {
+  bookAdd(input: [BookAdd!]!): [Book!]
 }
 
 input BookAdd {
   title: String!
   author: String
-}
-
-extend type Mutation {
-  bookAdd(input: [BookAdd!]!): [Book!]
 }

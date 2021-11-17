@@ -9,3 +9,33 @@ type Mutation {
 type Subcription {
   _: Boolean
 }
+
+input WhereString {
+  range: [RangeString!]
+  array: [String!]
+}
+
+input RangeString {
+  start: String!
+  end: String!
+}
+
+input WhereInt {
+  range: [RangeInt!]
+  array: [Int!]
+}
+
+input RangeInt {
+  start: Int!
+  end: Int!
+}
+
+enum Order {
+  ASC
+  DESC
+}
+
+input PaginationInput {
+  page: Int!
+  Size: Int!
+}

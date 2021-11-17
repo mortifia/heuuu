@@ -5,9 +5,11 @@ import { fields, gqlToSql } from '../../tools/index.js'
 const book = {
   _: 'book.book',
   _type: 'SELECT',
-  id: 'book_id as id',
+  bookId: 'book_id as "bookId"',
   title: 'title',
   author: 'author',
+  //full_count: 'count(*) OVER() AS _full_count', // TESSSST
+  //_full_count: true,    // if true also return total nb of row wihout limit or offset
 }
 
 const bookAdd = {
@@ -23,7 +25,12 @@ const bookAdd = {
 export const resolvers: IResolvers = {
   Query: {
     books: async (parent, args, ctx, info) => {
-      return await ctx.sql.unsafe(gqlToSql(book, fields(info)))
+      const tmp = gqlToSql(book, fields(info))
+      console.log(tmp)
+      console.log(args)
+      const tmp2 = await ctx.sql.unsafe(tmp)
+      console.dir(tmp2)
+      return tmp2
     },
   },
   Mutation: {
