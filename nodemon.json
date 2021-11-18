@@ -1,7 +1,7 @@
 {
     "ignore": [""],
     "watch": ["src"],
-    "exec": "npm run build-start",
+    "exec": "npm run build-start-dev",
     "ext": "ts,gql",
     "env": {
         "NODE_ENV": "development"

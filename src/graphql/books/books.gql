@@ -1,25 +1,26 @@
 extend type Query {
-  """
-  get all books info
-  """
   books(
     input: [BookInput!]
     order: [BookOrder!]
     pagination: PaginationInput
-  ): [Book!]
+  ): BooksConnection
 }
 
-interface pageInfo {
+type pageInfo {
   page: Int!
   allPage: Int!
   scale: Int!
 }
 
 type Book {
-  _pageInfo: pageInfo!
   bookId: Int!
   title: String!
   author: String
+}
+
+type BooksConnection {
+  _pageInfo: pageInfo!
+  books: [Book!]!
 }
 
 input BookInput {

@@ -37,5 +37,5 @@ enum Order {
 
 input PaginationInput {
   page: Int!
-  Size: Int!
+  size: Int
 }

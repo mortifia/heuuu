@@ -1,6 +1,16 @@
 'use strict'
+import { GraphQLResolveInfo } from 'graphql'
 import { IResolvers } from 'mercurius' // to avoid interference
-import { fields, gqlToSql } from '../../tools/index.js'
+import {
+  fields,
+  fieldsDeep,
+  gqlToSql,
+  keyStartAdd,
+  pageInfo,
+  prepareArgs,
+  prepareArgsDeep,
+  renameKey,
+} from '../../tools/index.js'
 
 const book = {
   _: 'book.book',
@@ -8,7 +18,7 @@ const book = {
   bookId: 'book_id as "bookId"',
   title: 'title',
   author: 'author',
-  //full_count: 'count(*) OVER() AS _full_count', // TESSSST
+  _pageInfo: 'count(*) OVER() AS _pageInfo', // TESSSST
   //_full_count: true,    // if true also return total nb of row wihout limit or offset
 }
 
@@ -24,19 +34,19 @@ const bookAdd = {
 
 export const resolvers: IResolvers = {
   Query: {
-    books: async (parent, args, ctx, info) => {
-      const tmp = gqlToSql(book, fields(info))
-      console.log(tmp)
-      console.log(args)
-      const tmp2 = await ctx.sql.unsafe(tmp)
-      console.dir(tmp2)
-      return tmp2
+    books: async (parent, args: {}, ctx, info) => {
+      const argReady = prepareArgsDeep(args, info, 'books')
+      console.log(argReady)
+      const sql = gqlToSql(book, argReady)
+      console.log(sql)
+      const returnSql = await ctx.sql.unsafe(sql)
+      return { books: returnSql, _pageInfo: pageInfo(argReady, returnSql) }
     },
   },
+
   Mutation: {
     bookAdd: async (parent, args, ctx, info) => {
-      let tmp = Object.assign({}, bookAdd)
-      // @ts-ignore
+      let tmp: { [key: string]: any } = Object.assign({}, bookAdd)
       tmp._returningField = fields(info)
       return await ctx.sql.unsafe(gqlToSql(tmp, args.input))
     },

@@ -1,8 +1,5 @@
 // generate sql with sheme for build sql and info of actual resolver to match exatly to the request
-export function gqlToSql(
-  schemeSql: { _type: string; _: string },
-  args: any[] | {}
-) {
+export function gqlToSql(schemeSql: { [key: string]: any }, args: any[] | {}) {
   switch (schemeSql._type) {
     case 'SELECT':
     case 'select':
@@ -19,24 +16,19 @@ export function gqlToSql(
     ('B6717', 'Tampopo', 110, '1985-02-10', 'Comedy'),
     ('HG120', 'The Dinner Game', 140, DEFAULT, 'Comedy');
  */
-function gqlToSqlInsert(
-  schemeSql: { _type: string; _: string },
-  args: any[] | {}
-) {
+function gqlToSqlInsert(schemeSql: { [key: string]: any }, args: any[] | {}) {
   // add inser into & table & colums
   let sql = `INSERT INTO ${schemeSql._} (${Object.keys(schemeSql)
     .filter(key => key[0] !== '_')
     .join(', ')}) VALUES \n  ${gqlToSqlInsertData(schemeSql, args)}` // add the sql type (select | remove | insert | ect ect)
   // sert a dire ce que l'on veut du retour
   if (
-    // @ts-ignore
-    schemeSql._returning !== undefined && // @ts-ignore
+    schemeSql._returning !== undefined &&
     Array.isArray(schemeSql._returningField)
   ) {
-    sql += `\nreturning` // @ts-ignore
+    sql += `\nreturning`
     schemeSql._returningField.forEach((fieldRequired: String | Object, pos) => {
       if (typeof fieldRequired === 'string') {
-        // @ts-ignore
         sql += `${pos === 0 ? '' : ','} ${schemeSql._returning[fieldRequired]}`
       }
     })
@@ -45,8 +37,8 @@ function gqlToSqlInsert(
 }
 
 function gqlToSqlInsertData(
-  schemeSql: { _type: string; _: string },
-  args: any[] | {}
+  schemeSql: { [key: string]: any },
+  args: any[] | { [key: string]: any }
 ) {
   if (Array.isArray(args)) {
     let tmp: string[] = []
@@ -60,7 +52,6 @@ function gqlToSqlInsertData(
     Object.keys(schemeSql)
       .filter(key => key[0] !== '_')
       .forEach((collumn, pos) => {
-        // @ts-ignore
         const value = args[collumn]
         value === undefined
           ? (sql += `${pos === 0 ? '' : ', '}NULL`)
@@ -73,20 +64,40 @@ function gqlToSqlInsertData(
 }
 
 function gqlToSqlSelect(
-  schemeSql: { _type: string; _: string },
-  args: any[] | {}
+  schemeSql: { [key: string]: any },
+  args: any[] | { [key: string]: any }
 ) {
   let sql = `SELECT` // add the sql type (select | remove | insert | ect ect)
   // add field requested to sql
   if (Array.isArray(args)) {
     args?.forEach((fieldRequired: String | Object, pos) => {
       if (typeof fieldRequired === 'string') {
-        // @ts-ignore
         sql += `${pos === 0 ? '' : ','} ${schemeSql[fieldRequired]}`
       }
     })
+  } else {
+    args._column.forEach((fieldRequired: String | Object, pos: number) => {
+      if (typeof fieldRequired === 'string') {
+        sql += `${pos === 0 ? '' : ','} ${schemeSql[fieldRequired]}`
+      }
+    })
+    if (
+      args._pageInfo !== undefined &&
+      args._pageInfo !== null &&
+      args._pageInfo !== false
+    ) {
+      sql += `, ${schemeSql._pageInfo}`
+    }
   }
   // add table to sql
   sql += ` FROM ${schemeSql._}`
+  // add limit and offset
+  if (!Array.isArray(args)) {
+    sql += `\n  LIMIT ${args._pagination.size || 50}${
+      args._pagination.page >= 0
+        ? '\n  OFFSET ' + args._pagination.size * args._pagination.page
+        : ''
+    }`
+  }
   return sql
 }
