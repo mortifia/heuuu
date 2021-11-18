@@ -68,6 +68,7 @@ function gqlToSqlSelect(
   args: any[] | { [key: string]: any }
 ) {
   let sql = `SELECT` // add the sql type (select | remove | insert | ect ect)
+
   // add field requested to sql
   if (Array.isArray(args)) {
     args?.forEach((fieldRequired: String | Object, pos) => {
@@ -81,18 +82,54 @@ function gqlToSqlSelect(
         sql += `${pos === 0 ? '' : ','} ${schemeSql[fieldRequired]}`
       }
     })
+
+    // get nb total of row with select rules ONLY if needed
     if (
       args._pageInfo !== undefined &&
       args._pageInfo !== null &&
       args._pageInfo !== false
     ) {
-      sql += `, ${schemeSql._pageInfo}`
+      sql += `, count(*) OVER() AS _pageInfo`
     }
   }
+
   // add table to sql
   sql += ` FROM ${schemeSql._}`
-  // add limit and offset
+
+  //add where requested (need to be first)
   if (!Array.isArray(args)) {
+    //where or
+    for (let indexOR = 0; indexOR < args._input.length; indexOR++) {
+      indexOR === 0 ? (sql += '\n  WHERE') : (sql += '\n    OR')
+      let first = true
+      //where and.column
+      for (const key in args._input[indexOR]) {
+        const column = schemeSql[key].split(' ')[0]
+        //where and.column.range
+        args._input[indexOR][key].range?.forEach(
+          (range: { not: boolean; start: any; end: any }) => {
+            sql += `${first === true ? '' : '\n    AND'} ${column} ${
+              range.not === true ? 'NOT ' : ''
+            }BETWEEN ${range.start} AND ${range.end}`
+            if (first === true) first = false
+          }
+        )
+        //where and.column.array
+        if (Array.isArray(args._input[indexOR][key].array)) {
+          const string =
+            typeof args._input[indexOR][key].array[0] === 'string'
+              ? '"' + args._input[indexOR][key].array.join('","') + '"'
+              : args._input[indexOR][key].array
+          sql += `${
+            first === true ? '' : '\n    AND'
+          } ${column} = ANY('{${string}}')`
+        }
+      }
+    }
+  }
+
+  if (!Array.isArray(args)) {
+    // add limit and offset
     sql += `\n  LIMIT ${args._pagination.size || 50}${
       args._pagination.page >= 0
         ? '\n  OFFSET ' + args._pagination.size * args._pagination.page

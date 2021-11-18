@@ -18,8 +18,6 @@ const book = {
   bookId: 'book_id as "bookId"',
   title: 'title',
   author: 'author',
-  _pageInfo: 'count(*) OVER() AS _pageInfo', // TESSSST
-  //_full_count: true,    // if true also return total nb of row wihout limit or offset
 }
 
 const bookAdd = {

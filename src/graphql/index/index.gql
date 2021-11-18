@@ -16,6 +16,7 @@ input WhereString {
 }
 
 input RangeString {
+  not: Boolean
   start: String!
   end: String!
 }
@@ -26,6 +27,7 @@ input WhereInt {
 }
 
 input RangeInt {
+  not: Boolean
   start: Int!
   end: Int!
 }
