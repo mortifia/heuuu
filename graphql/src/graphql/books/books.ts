@@ -15,7 +15,7 @@ import {
 const book = {
   _: 'book.book',
   _type: 'SELECT',
-  bookId: 'book_id as "bookId"',
+  id: 'book_id as "id"',
   title: 'title',
   author: 'author',
 }
@@ -27,16 +27,14 @@ const bookAdd = {
   _returningField: null,
   //id: [false, 'book_id'],
   title: true,
-  author: false,
+  //author: false,
 }
 
 export const resolvers: IResolvers = {
   Query: {
     books: async (parent, args: {}, ctx, info) => {
       const argReady = prepareArgsDeep(args, info, 'books')
-      console.log(argReady)
       const sql = gqlToSql(book, argReady)
-      console.log(sql)
       const returnSql = await ctx.sql.unsafe(sql)
       return { books: returnSql, _pageInfo: pageInfo(argReady, returnSql) }
     },

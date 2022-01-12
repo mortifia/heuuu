@@ -1,0 +1,13 @@
+.navbar {
+  display: flex;
+  position: sticky;
+  z-index: 1;
+  top: 0px;
+  align-items: center;
+
+  background-color: var(--primary);
+  color: var(--primary-text);
+  padding: 0 1.3rem;
+
+  box-shadow: 0px 4px 18px var(--secondary);
+}

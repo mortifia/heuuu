@@ -1,7 +1,7 @@
 import { GraphQLResolveInfo } from 'graphql'
 
 export function fields(info: GraphQLResolveInfo) {
-  return info.fieldNodes[0].selectionSet!.selections.map(info => {
+  return info.fieldNodes[0].selectionSet!.selections?.map(info => {
     // @ts-ignore
     return info.name.value
   }) as string[]
@@ -9,14 +9,22 @@ export function fields(info: GraphQLResolveInfo) {
 
 export function fieldsDeep(info: GraphQLResolveInfo) {
   return info.fieldNodes[0]
-    .selectionSet!.selections.map(connection => {
+    .selectionSet!.selections?.filter(
+      // @ts-ignore
+      connection => !connection.name.value.startsWith('__')
+    )
+    .map(connection => {
       return {
         // @ts-ignore
-        [connection.name.value]: connection.selectionSet.selections.map(
-          (field: { name: { value: String } }) => {
+        [connection.name.value]: connection.selectionSet.selections
+          ?.filter(
+            (field: { name: { value: String } }) =>
+              !field.name.value.startsWith('__')
+          )
+          .map((field: { name: { value: String } }) => {
+            //console.dir(field.name)
             return field.name.value
-          }
-        ),
+          }),
       }
     })
     .reduce((old, key) => ({ ...old, ...key }))
@@ -57,13 +65,13 @@ export function prepareArgsDeep(
 }
 
 export function pageInfo(argReady: { [key: string]: any }, returnSql: any[]) {
-  if (argReady._pageInfo) {
+  if (argReady?._pageInfo) {
     return {
-      page: argReady._pagination.page || 1,
+      page: argReady._pagination?.page || 0,
       allPage: Math.ceil(
-        returnSql[0]._pageinfo / (argReady._pagination.size || 100)
+        (returnSql[0]?._pageinfo || 0) / (argReady._pagination?.size || 100)
       ),
-      scale: argReady._pagination.size || 50,
+      scale: argReady._pagination?.size || 100,
     }
   }
   return {}

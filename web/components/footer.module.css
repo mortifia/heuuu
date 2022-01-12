@@ -1,0 +1,8 @@
+.footer {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--primary);
+  color: var(--primary-text);
+  padding: 1em 1.3em;
+  min-height: 6em;
+}

@@ -96,10 +96,10 @@ function gqlToSqlSelect(
   // add table to sql
   sql += ` FROM ${schemeSql._}`
 
-  //add where requested (need to be first)
+  //add where requested
   if (!Array.isArray(args)) {
     //where or
-    for (let indexOR = 0; indexOR < args._input.length; indexOR++) {
+    for (let indexOR = 0; indexOR < args?._input?.length; indexOR++) {
       indexOR === 0 ? (sql += '\n  WHERE') : (sql += '\n    OR')
       let first = true
       //where and.column
@@ -128,13 +128,30 @@ function gqlToSqlSelect(
     }
   }
 
+  //add group by
   if (!Array.isArray(args)) {
-    // add limit and offset
-    sql += `\n  LIMIT ${args._pagination.size || 50}${
-      args._pagination.page >= 0
-        ? '\n  OFFSET ' + args._pagination.size * args._pagination.page
+    if (args._order) {
+      sql += `\n  ORDER BY${args._order.map(
+        (order: { type: string; order: string }) => {
+          return ` ${
+            schemeSql[order.type].split(' ')[0] +
+            (order.order ? ` ${order.order}` : '')
+          }`
+        }
+      )}`
+    }
+  }
+
+  // add limit and offset
+  if (!Array.isArray(args)) {
+    sql += `\n  LIMIT ${args._pagination?.size || 50}${
+      (args._pagination?.page || 0) >= 0
+        ? '\n  OFFSET ' +
+          (args._pagination?.size || 50) * (args._pagination?.page || 0)
         : ''
     }`
   }
   return sql
 }
+
+//  https://teams.live.com/meet/94885272510512

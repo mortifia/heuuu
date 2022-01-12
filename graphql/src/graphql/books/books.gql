@@ -13,9 +13,8 @@ type pageInfo {
 }
 
 type Book {
-  bookId: Int!
+  id: Int!
   title: String!
-  author: String
 }
 
 type BooksConnection {
@@ -31,7 +30,7 @@ input BookInput {
 
 input BookOrder {
   type: BookType!
-  order: Order!
+  order: Order
 }
 
 enum BookType {

@@ -1,0 +1,33 @@
+:root {
+  --secondary: #101011;
+  --primary: #222222;
+  --primary2: #222222;
+  --primary-text: #dddddd;
+  --zoom-media: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--secondary);
+  color: var(--primary-text);
+
+  min-height: 100vh;
+  font-family: Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans,
+    Helvetica Neue, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: 1.5em;
+}

@@ -87,7 +87,7 @@ const start = async () => {
     // @ts-ignore
     server.register(opentelemetry, { serviceName })
     server.register(mercurius, mercuriusOpt)
-    await server.listen(3000)
+    await server.listen(4000)
     const address = server.server.address()
     typeof address === 'string'
       ? console.log(`🟩 run in ${address}${mercuriusOpt.path}`)
