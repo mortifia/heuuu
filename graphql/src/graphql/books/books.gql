@@ -23,7 +23,7 @@ type BooksConnection {
 }
 
 input BookInput {
-  bookId: WhereInt
+  id: WhereInt
   title: WhereString
   author: WhereString
 }
@@ -34,7 +34,7 @@ input BookOrder {
 }
 
 enum BookType {
-  bookId
+  id
   title
   author
 }

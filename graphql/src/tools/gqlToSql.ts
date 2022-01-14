@@ -104,6 +104,8 @@ function gqlToSqlSelect(
       let first = true
       //where and.column
       for (const key in args._input[indexOR]) {
+        if (schemeSql[key] === undefined)
+          throw new Error(`param "${key}" not found in shema`)
         const column = schemeSql[key].split(' ')[0]
         //where and.column.range
         args._input[indexOR][key].range?.forEach(
@@ -153,5 +155,3 @@ function gqlToSqlSelect(
   }
   return sql
 }
-
-//  https://teams.live.com/meet/94885272510512
